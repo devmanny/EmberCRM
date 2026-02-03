@@ -13,6 +13,7 @@ import {
 	getOrganizationByIdSchema,
 } from "@/schemas/organization-schemas";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
+import { organizationAgentRouter } from "@/trpc/routers/organization/organization-agent-router";
 import { organizationAiRouter } from "@/trpc/routers/organization/organization-ai-router";
 import { organizationContactRouter } from "@/trpc/routers/organization/organization-contact-router";
 import { organizationCreditRouter } from "@/trpc/routers/organization/organization-credit-router";
@@ -125,6 +126,7 @@ export const organizationRouter = createTRPCRouter({
 		}),
 
 	// Context-specific sub-routers
+	agent: organizationAgentRouter,
 	ai: organizationAiRouter,
 	contact: organizationContactRouter,
 	credit: organizationCreditRouter,
