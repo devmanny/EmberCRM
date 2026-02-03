@@ -1,22 +1,36 @@
 import { relations } from "drizzle-orm";
 import {
 	accountTable,
+	agentAssignmentTable,
+	agentTable,
 	aiChatTable,
 	billingEventTable,
+	channelConfigTable,
+	contactAgreementTable,
+	contactNoteTable,
+	contactSourceTable,
+	contactTable,
+	conversationMessageTable,
+	conversationTable,
 	creditBalanceTable,
 	creditDeductionFailureTable,
 	creditTransactionTable,
+	formSubmissionTable,
+	formTable,
 	invitationTable,
 	leadTable,
 	memberTable,
 	orderItemTable,
 	orderTable,
 	organizationTable,
+	productCategoryTable,
+	productTable,
 	sessionTable,
 	subscriptionItemTable,
 	subscriptionTable,
 	twoFactorTable,
 	userTable,
+	voiceCallTable,
 } from "./tables";
 
 export const accountRelations = relations(accountTable, ({ one }) => ({
@@ -60,6 +74,17 @@ export const organizationRelations = relations(
 		leads: many(leadTable),
 		creditBalance: one(creditBalanceTable),
 		creditTransactions: many(creditTransactionTable),
+		// Ember relations
+		contacts: many(contactTable),
+		contactAgreements: many(contactAgreementTable),
+		contactNotes: many(contactNoteTable),
+		channelConfigs: many(channelConfigTable),
+		conversations: many(conversationTable),
+		agents: many(agentTable),
+		forms: many(formTable),
+		voiceCalls: many(voiceCallTable),
+		products: many(productTable),
+		productCategories: many(productCategoryTable),
 	}),
 );
 
@@ -86,6 +111,11 @@ export const userRelations = relations(userTable, ({ many }) => ({
 	aiChats: many(aiChatTable),
 	assignedLeads: many(leadTable),
 	creditTransactions: many(creditTransactionTable),
+	// Ember relations
+	assignedContacts: many(contactTable),
+	contactNotes: many(contactNoteTable),
+	transferredConversations: many(conversationTable),
+	sentMessages: many(conversationMessageTable),
 }));
 
 // Billing relations
@@ -201,5 +231,238 @@ export const creditDeductionFailureRelations = relations(
 			references: [userTable.id],
 			relationName: "deductionFailureResolvedBy",
 		}),
+	}),
+);
+
+// ============================================================================
+// EMBER RELATIONS
+// ============================================================================
+
+// Contact relations
+export const contactRelations = relations(contactTable, ({ one, many }) => ({
+	organization: one(organizationTable, {
+		fields: [contactTable.organizationId],
+		references: [organizationTable.id],
+	}),
+	assignedTo: one(userTable, {
+		fields: [contactTable.assignedToId],
+		references: [userTable.id],
+	}),
+	mergedWith: one(contactTable, {
+		fields: [contactTable.mergedWithId],
+		references: [contactTable.id],
+		relationName: "contactMerge",
+	}),
+	sources: many(contactSourceTable),
+	agreements: many(contactAgreementTable),
+	notes: many(contactNoteTable),
+	conversations: many(conversationTable),
+	voiceCalls: many(voiceCallTable),
+	formSubmissions: many(formSubmissionTable),
+	agentAssignments: many(agentAssignmentTable),
+}));
+
+// Contact source relations
+export const contactSourceRelations = relations(
+	contactSourceTable,
+	({ one }) => ({
+		contact: one(contactTable, {
+			fields: [contactSourceTable.contactId],
+			references: [contactTable.id],
+		}),
+	}),
+);
+
+// Contact agreement relations
+export const contactAgreementRelations = relations(
+	contactAgreementTable,
+	({ one }) => ({
+		organization: one(organizationTable, {
+			fields: [contactAgreementTable.organizationId],
+			references: [organizationTable.id],
+		}),
+		contact: one(contactTable, {
+			fields: [contactAgreementTable.contactId],
+			references: [contactTable.id],
+		}),
+		conversation: one(conversationTable, {
+			fields: [contactAgreementTable.conversationId],
+			references: [conversationTable.id],
+		}),
+	}),
+);
+
+// Contact note relations
+export const contactNoteRelations = relations(contactNoteTable, ({ one }) => ({
+	organization: one(organizationTable, {
+		fields: [contactNoteTable.organizationId],
+		references: [organizationTable.id],
+	}),
+	contact: one(contactTable, {
+		fields: [contactNoteTable.contactId],
+		references: [contactTable.id],
+	}),
+	createdBy: one(userTable, {
+		fields: [contactNoteTable.createdById],
+		references: [userTable.id],
+	}),
+}));
+
+// Channel config relations
+export const channelConfigRelations = relations(
+	channelConfigTable,
+	({ one }) => ({
+		organization: one(organizationTable, {
+			fields: [channelConfigTable.organizationId],
+			references: [organizationTable.id],
+		}),
+	}),
+);
+
+// Conversation relations
+export const conversationRelations = relations(
+	conversationTable,
+	({ one, many }) => ({
+		organization: one(organizationTable, {
+			fields: [conversationTable.organizationId],
+			references: [organizationTable.id],
+		}),
+		contact: one(contactTable, {
+			fields: [conversationTable.contactId],
+			references: [contactTable.id],
+		}),
+		transferredTo: one(userTable, {
+			fields: [conversationTable.transferredToId],
+			references: [userTable.id],
+		}),
+		messages: many(conversationMessageTable),
+		agreements: many(contactAgreementTable),
+		agentAssignments: many(agentAssignmentTable),
+		voiceCalls: many(voiceCallTable),
+	}),
+);
+
+// Conversation message relations
+export const conversationMessageRelations = relations(
+	conversationMessageTable,
+	({ one }) => ({
+		conversation: one(conversationTable, {
+			fields: [conversationMessageTable.conversationId],
+			references: [conversationTable.id],
+		}),
+		sentBy: one(userTable, {
+			fields: [conversationMessageTable.sentById],
+			references: [userTable.id],
+		}),
+	}),
+);
+
+// Agent relations
+export const agentRelations = relations(agentTable, ({ one, many }) => ({
+	organization: one(organizationTable, {
+		fields: [agentTable.organizationId],
+		references: [organizationTable.id],
+	}),
+	assignments: many(agentAssignmentTable),
+	forms: many(formTable),
+	voiceCalls: many(voiceCallTable),
+}));
+
+// Agent assignment relations
+export const agentAssignmentRelations = relations(
+	agentAssignmentTable,
+	({ one }) => ({
+		conversation: one(conversationTable, {
+			fields: [agentAssignmentTable.conversationId],
+			references: [conversationTable.id],
+		}),
+		agent: one(agentTable, {
+			fields: [agentAssignmentTable.agentId],
+			references: [agentTable.id],
+		}),
+		contact: one(contactTable, {
+			fields: [agentAssignmentTable.contactId],
+			references: [contactTable.id],
+		}),
+	}),
+);
+
+// Form relations
+export const formRelations = relations(formTable, ({ one, many }) => ({
+	organization: one(organizationTable, {
+		fields: [formTable.organizationId],
+		references: [organizationTable.id],
+	}),
+	assignToAgent: one(agentTable, {
+		fields: [formTable.assignToAgentId],
+		references: [agentTable.id],
+	}),
+	submissions: many(formSubmissionTable),
+}));
+
+// Form submission relations
+export const formSubmissionRelations = relations(
+	formSubmissionTable,
+	({ one }) => ({
+		form: one(formTable, {
+			fields: [formSubmissionTable.formId],
+			references: [formTable.id],
+		}),
+		contact: one(contactTable, {
+			fields: [formSubmissionTable.contactId],
+			references: [contactTable.id],
+		}),
+	}),
+);
+
+// Voice call relations
+export const voiceCallRelations = relations(voiceCallTable, ({ one }) => ({
+	organization: one(organizationTable, {
+		fields: [voiceCallTable.organizationId],
+		references: [organizationTable.id],
+	}),
+	conversation: one(conversationTable, {
+		fields: [voiceCallTable.conversationId],
+		references: [conversationTable.id],
+	}),
+	contact: one(contactTable, {
+		fields: [voiceCallTable.contactId],
+		references: [contactTable.id],
+	}),
+	agent: one(agentTable, {
+		fields: [voiceCallTable.agentId],
+		references: [agentTable.id],
+	}),
+}));
+
+// Product relations
+export const productRelations = relations(productTable, ({ one }) => ({
+	organization: one(organizationTable, {
+		fields: [productTable.organizationId],
+		references: [organizationTable.id],
+	}),
+	category: one(productCategoryTable, {
+		fields: [productTable.categoryId],
+		references: [productCategoryTable.id],
+	}),
+}));
+
+// Product category relations
+export const productCategoryRelations = relations(
+	productCategoryTable,
+	({ one, many }) => ({
+		organization: one(organizationTable, {
+			fields: [productCategoryTable.organizationId],
+			references: [organizationTable.id],
+		}),
+		parent: one(productCategoryTable, {
+			fields: [productCategoryTable.parentId],
+			references: [productCategoryTable.id],
+			relationName: "categoryHierarchy",
+		}),
+		children: many(productCategoryTable, {
+			relationName: "categoryHierarchy",
+		}),
+		products: many(productTable),
 	}),
 );
