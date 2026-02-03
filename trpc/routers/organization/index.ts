@@ -15,6 +15,7 @@ import {
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
 import { organizationAgentRouter } from "@/trpc/routers/organization/organization-agent-router";
 import { organizationAiRouter } from "@/trpc/routers/organization/organization-ai-router";
+import { organizationChannelRouter } from "@/trpc/routers/organization/organization-channel-router";
 import { organizationContactRouter } from "@/trpc/routers/organization/organization-contact-router";
 import { organizationCreditRouter } from "@/trpc/routers/organization/organization-credit-router";
 import { organizationLeadRouter } from "@/trpc/routers/organization/organization-lead-router";
@@ -128,6 +129,7 @@ export const organizationRouter = createTRPCRouter({
 	// Context-specific sub-routers
 	agent: organizationAgentRouter,
 	ai: organizationAiRouter,
+	channel: organizationChannelRouter,
 	contact: organizationContactRouter,
 	credit: organizationCreditRouter,
 	lead: organizationLeadRouter,
