@@ -754,7 +754,8 @@ export const leadTable = pgTable(
  * Contact table - Enhanced contact management with multi-source tracking and fusion support
  * Replaces/extends the lead concept with richer profiling and AI interaction tracking
  */
-export const contactTable = pgTable(
+// biome-ignore lint/suspicious/noExplicitAny: Circular self-reference requires any
+export const contactTable: any = pgTable(
 	"contact",
 	{
 		id: uuid("id").primaryKey().defaultRandom(),
@@ -793,9 +794,13 @@ export const contactTable = pgTable(
 			.notNull()
 			.default(ContactStatus.active),
 		// Contact fusion/merge support
-		mergedWithId: uuid("merged_with_id").references(() => contactTable.id, {
-			onDelete: "set null",
-		}),
+		mergedWithId: uuid("merged_with_id").references(
+			// biome-ignore lint/suspicious/noExplicitAny: Circular reference
+			() => (contactTable as any).id,
+			{
+				onDelete: "set null",
+			},
+		),
 		mergedContactIds: text("merged_contact_ids"), // JSON array of UUIDs
 		// Timestamps
 		createdAt: timestamp("created_at", { withTimezone: true })
@@ -1392,7 +1397,8 @@ export const productTable = pgTable(
 /**
  * Product category table - Product categorization
  */
-export const productCategoryTable = pgTable(
+// biome-ignore lint/suspicious/noExplicitAny: Circular self-reference requires any
+export const productCategoryTable: any = pgTable(
 	"product_category",
 	{
 		id: uuid("id").primaryKey().defaultRandom(),
@@ -1401,9 +1407,13 @@ export const productCategoryTable = pgTable(
 			.references(() => organizationTable.id, { onDelete: "cascade" }),
 		name: text("name").notNull(),
 		description: text("description"),
-		parentId: uuid("parent_id").references(() => productCategoryTable.id, {
-			onDelete: "set null",
-		}), // Self-reference for nested categories
+		parentId: uuid("parent_id").references(
+			// biome-ignore lint/suspicious/noExplicitAny: Circular reference
+			() => (productCategoryTable as any).id,
+			{
+				onDelete: "set null",
+			},
+		), // Self-reference for nested categories
 		createdAt: timestamp("created_at", { withTimezone: true })
 			.notNull()
 			.defaultNow(),

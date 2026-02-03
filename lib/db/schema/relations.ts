@@ -249,8 +249,10 @@ export const contactRelations = relations(contactTable, ({ one, many }) => ({
 		references: [userTable.id],
 	}),
 	mergedWith: one(contactTable, {
-		fields: [contactTable.mergedWithId],
-		references: [contactTable.id],
+		// biome-ignore lint/suspicious/noExplicitAny: Circular reference
+		fields: [(contactTable as any).mergedWithId],
+		// biome-ignore lint/suspicious/noExplicitAny: Circular reference
+		references: [(contactTable as any).id],
 		relationName: "contactMerge",
 	}),
 	sources: many(contactSourceTable),
@@ -456,8 +458,10 @@ export const productCategoryRelations = relations(
 			references: [organizationTable.id],
 		}),
 		parent: one(productCategoryTable, {
-			fields: [productCategoryTable.parentId],
-			references: [productCategoryTable.id],
+			// biome-ignore lint/suspicious/noExplicitAny: Circular reference
+			fields: [(productCategoryTable as any).parentId],
+			// biome-ignore lint/suspicious/noExplicitAny: Circular reference
+			references: [(productCategoryTable as any).id],
 			relationName: "categoryHierarchy",
 		}),
 		children: many(productCategoryTable, {
