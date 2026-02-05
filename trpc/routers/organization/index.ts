@@ -19,6 +19,7 @@ import { organizationChannelRouter } from "@/trpc/routers/organization/organizat
 import { organizationContactRouter } from "@/trpc/routers/organization/organization-contact-router";
 import { organizationCreditRouter } from "@/trpc/routers/organization/organization-credit-router";
 import { organizationFormRouter } from "@/trpc/routers/organization/organization-form-router";
+import { organizationInventoryRouter } from "@/trpc/routers/organization/organization-inventory-router";
 import { organizationLeadRouter } from "@/trpc/routers/organization/organization-lead-router";
 import { organizationSubscriptionRouter } from "@/trpc/routers/organization/organization-subscription-router";
 
@@ -134,6 +135,7 @@ export const organizationRouter = createTRPCRouter({
 	contact: organizationContactRouter,
 	credit: organizationCreditRouter,
 	form: organizationFormRouter,
+	inventory: organizationInventoryRouter,
 	lead: organizationLeadRouter,
 	subscription: organizationSubscriptionRouter,
 });

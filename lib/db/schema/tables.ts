@@ -1427,3 +1427,33 @@ export const productCategoryTable: any = pgTable(
 		index("product_category_parent_id_idx").on(table.parentId),
 	],
 );
+
+/**
+ * Inventory sync configuration table - Settings for syncing products from external sources
+ */
+export const inventorySyncConfigTable = pgTable(
+	"inventory_sync_config",
+	{
+		id: uuid("id").primaryKey().defaultRandom(),
+		organizationId: uuid("organization_id")
+			.notNull()
+			.references(() => organizationTable.id, { onDelete: "cascade" }),
+		source: text("source").notNull(), // shopify, woocommerce, custom_api, csv
+		credentials: text("credentials").notNull(), // JSON encrypted
+		syncSchedule: text("sync_schedule"), // Cron expression
+		autoSync: boolean("auto_sync").notNull().default(false),
+		fieldMapping: text("field_mapping"), // JSON - maps external fields to our schema
+		lastSyncedAt: timestamp("last_synced_at", { withTimezone: true }),
+		createdAt: timestamp("created_at", { withTimezone: true })
+			.notNull()
+			.defaultNow(),
+		updatedAt: timestamp("updated_at", { withTimezone: true })
+			.notNull()
+			.defaultNow()
+			.$onUpdate(() => new Date()),
+	},
+	(table) => [
+		index("inventory_sync_config_organization_id_idx").on(table.organizationId),
+		index("inventory_sync_config_source_idx").on(table.source),
+	],
+);
